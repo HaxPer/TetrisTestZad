@@ -15,7 +15,6 @@ public class SpwnPref : MonoBehaviour {
     public List<Pref> ListPrefs = new List<Pref>();
     public int ChansDropa;
     Chena2CheckZoneGame zoneGame;
-    Shena2MovementPref movementPref;
 
     void Start()
     {

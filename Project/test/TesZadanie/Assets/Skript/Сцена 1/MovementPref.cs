@@ -4,16 +4,21 @@ using UnityEngine;
 
 public class MovementPref : MonoBehaviour
 {
-    float timeDown = 0;
-    float SpeedDown = 1;
+    float timeDown = 0; // ----------\
+                                    // отвечают за подения фигуры
+    float SpeedDown = 1; // ---------/
 
 
-    public bool allRot = true;
-    public bool limRot = false;
+    public bool allRot = true; // переменная которая отвечает за то что можно ли вращать фигуру или нет
+    public bool limRot = false; // переменная которая отвечает за вращение фигуры на 180 гр. или на 90 гр.
+
+    CheckZoneGame zoneGame;
+    SpwnPref spwnPref;
 
     void Start()
     {
-        
+        zoneGame = GameObject.FindGameObjectWithTag("GameZon").GetComponent<CheckZoneGame>();
+        spwnPref = GameObject.FindGameObjectWithTag("Spawn").GetComponent<SpwnPref>();
     }
 
     void Update ()
@@ -21,15 +26,17 @@ public class MovementPref : MonoBehaviour
         Movement();
     }
 
+    //передвижение фигуры
     void Movement()
     {
+        //передвижение вправа при нажатии стрелки вправа
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
             transform.position += new Vector3(1, 0, 0);
 
             if (CheckPosPref())
             {
-                FindObjectOfType<CheckZoneGame>().checkPosZona(this);
+                zoneGame.checkPosZona(this);
             }
             else
             {
@@ -38,13 +45,14 @@ public class MovementPref : MonoBehaviour
             }
         }
 
+        //передвижение влево при нажатии стрелки влево
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             transform.position += new Vector3(-1, 0, 0);
 
             if (CheckPosPref())
             {
-                FindObjectOfType<CheckZoneGame>().checkPosZona(this);
+                zoneGame.checkPosZona(this);
             }
             else
             {
@@ -53,6 +61,7 @@ public class MovementPref : MonoBehaviour
             }
         }
 
+        //поворот фигуры при нажатии стрелки вверх
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             if (allRot)
@@ -82,7 +91,7 @@ public class MovementPref : MonoBehaviour
 
                 if (CheckPosPref())
                 {
-                    FindObjectOfType<CheckZoneGame>().checkPosZona(this);
+                    zoneGame.checkPosZona(this);
                 }
                 else
                 {
@@ -110,19 +119,28 @@ public class MovementPref : MonoBehaviour
             }
         }
 
+        //передвижение вниз при нажатии стрелки вниз
         if (Input.GetKeyDown(KeyCode.DownArrow) || Time.time - timeDown >= SpeedDown)
         {
             transform.position += new Vector3(0, -1, 0);
 
             if (CheckPosPref())
             {
-                FindObjectOfType<CheckZoneGame>().checkPosZona(this);
+                zoneGame.checkPosZona(this);
             }
             else
             {
-                transform.position += new Vector3(0, 1, 0);
-                FindObjectOfType<CheckZoneGame>().DelPref();
-                enabled = false;
+                if (zoneGame.GameOverCheckPos(this))
+                {
+                    zoneGame.GameOver();
+                }
+                else
+                {
+                    transform.position += new Vector3(0, 1, 0);
+                    zoneGame.CheckZon();
+                    enabled = false;
+                    spwnPref.CallDropRatePref();
+                }
             }
             timeDown = Time.time;
         }
@@ -134,16 +152,18 @@ public class MovementPref : MonoBehaviour
         {
             Vector2 pos = CheckZoneGame.CheckF(mino.position);
 
-            if (FindObjectOfType<CheckZoneGame>().Chek(pos) == false)
+            if (zoneGame.Chek(pos) == false)
             {
                 return false;
             }
 
-            if(FindObjectOfType<CheckZoneGame>().MovPosition(pos) != null && FindObjectOfType<CheckZoneGame>().MovPosition(pos).parent != transform)
+            if(zoneGame.MovPosition(pos) != null && zoneGame.MovPosition(pos).parent != transform)
             {
                 return false;
             }
         }
         return true;
     }
+
+    
 }

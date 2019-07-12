@@ -4,27 +4,15 @@ using UnityEngine.SceneManagement;
 
 public class Shena2MovementPref : MonoBehaviour
 {
-    [System.Serializable]
-    public class Pref
-    {
-        public GameObject prefab;
-        public int droprate;
-    }
+    public bool allRot = true; // переменная которая отвечает за то что можно ли вращать фигуру или нет
+    public bool limRot = false; // переменная которая отвечает за вращение фигуры на 180 гр. или на 90 гр.
 
-    public List<Pref> ListPrefs = new List<Pref>();
-    public int ChansDropa;
-
-    float timeDown = 0;
-    float SpeedDown = 1;
-
-
-    public bool allRot = true;
-    public bool limRot = false;
+    float timeDown = 0; // ----------\
+                                    // отвечают за подения фигуры
+    float SpeedDown = 1; // ---------/
 
     Chena2CheckZoneGame zoneGame;
     SpwnPref spwnPref;
-
-    public GameObject Spawn;
 
     void Start()
     {
@@ -37,8 +25,10 @@ public class Shena2MovementPref : MonoBehaviour
         Movement();
     }
 
+    //передвижение фигуры
     void Movement()
     {
+        //передвижение вправа при нажатии стрелки вправа
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
             transform.position += new Vector3(1, 0, 0);
@@ -50,10 +40,11 @@ public class Shena2MovementPref : MonoBehaviour
             else
             {
                 transform.position += new Vector3(-1, 0, 0);
-
+                
             }
         }
 
+        //передвижение влево при нажатии стрелки влево
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             transform.position += new Vector3(-1, 0, 0);
@@ -69,6 +60,7 @@ public class Shena2MovementPref : MonoBehaviour
             }
         }
 
+        //поворот фигуры при нажатии стрелки вверх
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             if (allRot)
@@ -126,7 +118,8 @@ public class Shena2MovementPref : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.DownArrow))
+        //передвижение вниз при нажатии стрелки вниз
+        if (Input.GetKeyDown(KeyCode.DownArrow) || Time.time - timeDown >= SpeedDown)
         {
             transform.position += new Vector3(0, -1, 0);
 
@@ -136,21 +129,22 @@ public class Shena2MovementPref : MonoBehaviour
             }
             else
             {
-                if(zoneGame.GameOverCheckPos(this))
+                //вызов сцены GameOver
+                if (zoneGame.GameOverCheckPos(this))
                 {
-                    SceneManager.LoadScene("GameOver");
+                    zoneGame.GameOver();
                 }
-                else
-                {
-                    transform.position += new Vector3(0, 1, 0);
-                    zoneGame.DelPref();
-                    enabled = false;
-                    spwnPref.CallDropRatePref();
-                }
+
+                transform.position += new Vector3(0, 1, 0);
+                zoneGame.CheckZon();
+                enabled = false; //делает объект не активным 
+                spwnPref.CallDropRatePref();
             }
+            timeDown = Time.time;
         }
     }
 
+    //проверка нахождения позиции фигуры
     bool CheckPosPref()
     {
         foreach (Transform mino in transform)
